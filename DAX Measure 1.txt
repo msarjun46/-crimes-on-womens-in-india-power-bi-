@@ -1,0 +1,126 @@
+AssaultOnMinorCases = IF(CONTAINS(VALUES('Table 2'[Category]), 'Table 2'[Category], "ASSAULT ON MINOR"), SUM(CrimesOnWomenData[ASSAULT ON MINOR]))
+
+AssaultOnWomenCases = IF(CONTAINS(VALUES('Table 2'[Category]), 'Table 2'[Category], "ASSAULT ON WOMEN"), SUM('CrimesOnWomenData'[ASSAULT ON WOMEN]))
+
+DomesticViolenceCases = IF(CONTAINS(VALUES('Table 2'[Category]), 'Table 2'[Category], "DOMESTIC VIOLENCE"), SUM(CrimesOnWomenData[DOMESTIC VIOLENCE]))'
+
+DowryDeathCases = IF(CONTAINS(VALUES('Table 2'[Category]), 'Table 2'[Category], "DOWRY DEATH"), SUM(CrimesOnWomenData[DOWRY DEATH]))
+
+Kidnap&AssaultCases = IF(CONTAINS(VALUES('Table 2'[Category]), 'Table 2'[Category], "KIDNAP & ASSAULT"), SUM(CrimesOnWomenData[KIDNAP & ASSAULT]))
+
+RapeCases = IF(CONTAINS(VALUES('Table 2'[Category]), 'Table 2'[Category], "RAPE"), SUM('CrimesOnWomenData'[RAPE]))
+
+WomenTraffickingCases = IF(CONTAINS(VALUES('Table 2'[Category]), 'Table 2'[Category], "WOMEN TRAFFICKING"),SUM(CrimesOnWomenData[WOMEN TRAFFICKING]))
+
+Highest Value State = 
+VAR SelectedCategory = SELECTEDVALUE('Table 2'[Category])
+VAR MaxValue = 
+    SWITCH(
+        TRUE(),
+        SelectedCategory = "RAPE", MAXX(ALLSELECTED('CrimesOnWomenData'), 'CrimesOnWomenData'[RAPE]),
+        SelectedCategory = "ASSAULT ON WOMEN", MAXX(ALLSELECTED('CrimesOnWomenData'), 'CrimesOnWomenData'[ASSAULT ON WOMEN]),
+        SelectedCategory = "ASSAULT ON MINOR", MAXX(ALLSELECTED('CrimesOnWomenData'), 'CrimesOnWomenData'[ASSAULT ON MINOR]),
+        SelectedCategory = "DOWRY DEATH", MAXX(ALLSELECTED('CrimesOnWomenData'), 'CrimesOnWomenData'[DOWRY DEATH]),
+        SelectedCategory = "DOMESTIC VIOLENCE", MAXX(ALLSELECTED('CrimesOnWomenData'), 'CrimesOnWomenData'[DOMESTIC VIOLENCE]),
+        SelectedCategory = "KIDNAP & ASSAULT", MAXX(ALLSELECTED('CrimesOnWomenData'), 'CrimesOnWomenData'[KIDNAP & ASSAULT]),
+        SelectedCategory = "WOMEN TRAFFICKING", MAXX(ALLSELECTED('CrimesOnWomenData'), 'CrimesOnWomenData'[WOMEN TRAFFICKING])
+    )
+VAR HighestState = 
+    CALCULATE(
+        FIRSTNONBLANK('CrimesOnWomenData'[STATE], 1),
+        FILTER(
+            'CrimesOnWomenData',
+            SWITCH(
+                TRUE(),
+                SelectedCategory = "RAPE", 'CrimesOnWomenData'[RAPE] = MaxValue,
+                SelectedCategory = "ASSAULT ON WOMEN", 'CrimesOnWomenData'[ASSAULT ON WOMEN] = MaxValue,
+                SelectedCategory = "ASSAULT ON MINOR", 'CrimesOnWomenData'[ASSAULT ON MINOR] = MaxValue,
+                SelectedCategory = "DOWRY DEATH", 'CrimesOnWomenData'[DOWRY DEATH] = MaxValue,
+                SelectedCategory = "DOMESTIC VIOLENCE", 'CrimesOnWomenData'[DOMESTIC VIOLENCE] = MaxValue,
+                SelectedCategory = "KIDNAP & ASSAULT", 'CrimesOnWomenData'[KIDNAP & ASSAULT] = MaxValue,
+                SelectedCategory = "WOMEN TRAFFICKING", 'CrimesOnWomenData'[WOMEN TRAFFICKING] = MaxValue
+            )
+        )
+    )
+RETURN
+    IF(ISBLANK(HighestState), "NO DATA", HighestState)
+
+Lowest Value State = 
+VAR SelectedCategory = SELECTEDVALUE('Table 2'[Category])
+VAR MinValue =
+    SWITCH(
+        TRUE(),
+        SelectedCategory = "RAPE", MINX(ALLSELECTED('CrimesOnWomenData'), 'CrimesOnWomenData'[RAPE]),
+        SelectedCategory = "ASSAULT ON WOMEN", MINX(ALLSELECTED('CrimesOnWomenData'), 'CrimesOnWomenData'[ASSAULT ON WOMEN]),
+        SelectedCategory = "ASSAULT ON MINOR", MINX(ALLSELECTED('CrimesOnWomenData'), 'CrimesOnWomenData'[ASSAULT ON MINOR]),
+        SelectedCategory = "DOWRY DEATH", MINX(ALLSELECTED('CrimesOnWomenData'), 'CrimesOnWomenData'[DOWRY DEATH]),
+        SelectedCategory = "DOMESTIC VIOLENCE", MINX(ALLSELECTED('CrimesOnWomenData'), 'CrimesOnWomenData'[DOMESTIC VIOLENCE]),
+        SelectedCategory = "KIDNAP & ASSAULT", MINX(ALLSELECTED('CrimesOnWomenData'), 'CrimesOnWomenData'[KIDNAP & ASSAULT]),
+        SelectedCategory = "WOMEN TRAFFICKING", MINX(ALLSELECTED('CrimesOnWomenData'), 'CrimesOnWomenData'[WOMEN TRAFFICKING])
+    )
+VAR LowestState = 
+    CALCULATE(
+        FIRSTNONBLANK('CrimesOnWomenData'[STATE], 1),
+        FILTER(
+            'CrimesOnWomenData',
+            SWITCH(
+                TRUE(),
+                SelectedCategory = "RAPE", 'CrimesOnWomenData'[RAPE] = MinValue,
+                SelectedCategory = "ASSAULT ON WOMEN", 'CrimesOnWomenData'[ASSAULT ON WOMEN] = MinValue,
+                SelectedCategory = "ASSAULT ON MINOR", 'CrimesOnWomenData'[ASSAULT ON MINOR] = MinValue,
+                SelectedCategory = "DOWRY DEATH", 'CrimesOnWomenData'[DOWRY DEATH] = MinValue,
+                SelectedCategory = "DOMESTIC VIOLENCE", 'CrimesOnWomenData'[DOMESTIC VIOLENCE] = MinValue,
+                SelectedCategory = "KIDNAP & ASSAULT", 'CrimesOnWomenData'[KIDNAP & ASSAULT] = MinValue,
+                SelectedCategory = "WOMEN TRAFFICKING", 'CrimesOnWomenData'[WOMEN TRAFFICKING] = MinValue
+            )
+        )
+    )
+RETURN
+    IF(ISBLANK(LowestState), "NO DATA", LowestState)
+
+MostFrequentCrimeCategory = 
+VAR CrimeTable = 
+    UNION(
+        ROW("Category", "RAPE", "Count", [RapeCases]),
+        ROW("Category", "KIDNAP & ASSAULT", "Count", [Kidnap&AssaultCases]),
+        ROW("Category", "DOWRY DEATH", "Count", [DowryDeathCases]),
+        ROW("Category", "ASSAULT ON WOMEN", "Count", [AssaultOnWomenCases]),
+        ROW("Category", "ASSAULT ON MINOR", "Count", [AssaultOnMinorCases]),
+        ROW("Category", "DOMESTIC VIOLENCE", "Count", [DomesticViolenceCases]),
+        ROW("Category", "WOMEN TRAFFICKING", "Count", [WomenTraffickingCases])
+    )
+
+VAR MaxValue = MAXX(CrimeTable, [Count])
+
+RETURN
+CALCULATE(
+    MAXX(FILTER(CrimeTable, [Count] = MaxValue), [Category])
+)
+
+
+TotalCases = 
+VAR selectedCategory = SELECTEDVALUE('Table 2'[Category])
+VAR totalcases =
+    CALCULATE(
+        SWITCH(
+            TRUE(),
+            selectedCategory = "RAPE", SUM('CrimesOnWomenData'[RAPE]),
+            selectedCategory = "ASSAULT ON WOMEN", SUM('CrimesOnWomenData'[ASSAULT ON WOMEN]),
+            selectedCategory = "ASSAULT ON MINOR", SUM('CrimesOnWomenData'[ASSAULT ON MINOR]),
+            selectedCategory = "DOWRY DEATH", SUM('CrimesOnWomenData'[DOWRY DEATH]),
+            selectedCategory = "DOMESTIC VIOLENCE", SUM('CrimesOnWomenData'[DOMESTIC VIOLENCE]),
+            selectedCategory = "KIDNAP & ASSAULT", SUM('CrimesOnWomenData'[KIDNAP & ASSAULT]),
+            selectedCategory = "WOMEN TRAFFICKING", SUM('CrimesOnWomenData'[WOMEN TRAFFICKING]),
+            SUM('CrimesOnWomenData'[Total Cases])
+        ),
+        ALLSELECTED('CrimesOnWomenData'[YEAR], 'CrimesOnWomenData'[STATE])
+    )
+RETURN
+    COALESCE(totalcases, 0)
+
+
+
+
+
+
+

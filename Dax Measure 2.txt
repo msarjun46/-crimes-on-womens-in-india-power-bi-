@@ -1,0 +1,42 @@
+Rank by Total Cases = RANKX(ALL(CrimesOnWomenData[STATE]), CALCULATE(SUM(CrimesOnWomenData[Total Cases])))
+
+Safest State = 
+    VAR RankedStates = 
+        TOPN(
+            1,
+            VALUES(CrimesOnWomenData[STATE]),
+            -CALCULATE(SUM(CrimesOnWomenData[Total Cases]))
+        )
+    RETURN
+        MINX(RankedStates, [STATE])
+
+Total Cases % = 
+    DIVIDE(
+        CALCULATE(SUM(CrimesOnWomenData[Total Cases])),
+        CALCULATE(SUM(CrimesOnWomenData[Total Cases]), ALL('CrimesOnWomenData')),
+        BLANK())
+
+Unsafe State = 
+    VAR RankedStates = 
+        TOPN(
+            1,
+            VALUES(CrimesOnWomenData[STATE]),
+            -CALCULATE(SUM(CrimesOnWomenData[Total Cases])),ASC
+        )
+    RETURN
+        MAXX(RankedStates, [STATE])
+
+
+Table 2 = DATATABLE(
+    "Category", STRING,
+    {
+        {"RAPE"},
+        {"ASSAULT ON WOMEN"},
+        {"ASSAULT ON MINOR"},
+        {"DOWRY DEATH"},
+        {"DOMESTIC VIOLENCE"},
+        {"KIDNAP & ASSAULT"},
+        {"WOMEN TRAFFICKING"}
+    }
+)
+
